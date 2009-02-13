@@ -108,10 +108,6 @@ main (int argc, char *argv[])
 	g_signal_connect(window, "destroy",
 			 G_CALLBACK (gtk_main_quit), NULL);
 
-	/*
-	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);*/
-
 	g_timeout_add (1000, timeout_callback, darea);
 
 	if ((geometry == NULL)
