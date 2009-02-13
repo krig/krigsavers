@@ -20,6 +20,10 @@ def build(bld):
         saver.install_path = os.path.join(bld.env['SAVER'], 'gnome-screensaver')
         saver.chmod = 0755
 
+    # variation of epochsaver
+    bld.install_files('${PREFIX}/share/applications/screensavers', 'epochcountdown.desktop')
+
+
 def configure(conf):
     conf.check_tool('gcc')
     conf.check_tool('g++')

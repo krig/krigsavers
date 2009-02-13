@@ -6,6 +6,7 @@
 #include "gs-theme-window.h"
 
 static gchar *geometry = NULL;
+static gboolean countdown = FALSE;
 
 static GOptionEntry options[] = {
 	{"geometry",
@@ -14,6 +15,12 @@ static GOptionEntry options[] = {
 	 G_OPTION_ARG_STRING,
 	 &geometry,
 	 "The initial size and position of window", "WIDTHxHEIGHT+X+Y"},
+	{"countdown",
+	 'c',
+	 0,
+	 G_OPTION_ARG_NONE,
+	 &countdown,
+	 "If set, the clock counts down to 1234567890", NULL},
 
        {NULL}
 };
@@ -32,12 +39,19 @@ on_expose_event(GtkWidget      *widget,
 	char* ptr;
 	gint x, y;
 	gint width, height;
+	int invtim;
 	cairo_text_extents_t extents;
 	cairo_matrix_t mtx;
 
 	now = time(0);
 	now_tm = localtime(&now);
 	strftime(snow, 256, "%s", now_tm);
+
+	if (countdown) {
+		invtim = 1234567890 - atoi(snow);
+		sprintf(snow, "%d", invtim);
+	}
+
 	strcpy(smax, snow);
 	for (ptr = smax; *ptr; ++ptr) {
 		*ptr = '9';
