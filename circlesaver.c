@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
+#include <glib.h>
 #include "gs-theme-window.h"
 
 static gchar *geometry = NULL;
@@ -26,7 +27,7 @@ static GOptionEntry options[] = {
        {NULL}
 };
 
-#define NUM_CIRCLES 10
+#define NUM_CIRCLES 40
 #define UPDATE_FREQ 10
 
 typedef struct rgba_
@@ -41,7 +42,9 @@ typedef struct circle_
 	double r;
 	double dx;
 	double dy;
-	rgba_t rgba;
+	rgba_t fill;
+	rgba_t stroke;
+	double t;
 } circle_t;
 
 static rgba_t
@@ -55,10 +58,13 @@ color(unsigned int rgba)
 	return clr;
 }
 
+GRand* rander = NULL;
 static double
 next_random()
 {
-	return ((double)(rand()%1000)/500.0) - 1.0;
+	if (rander == NULL)
+		rander = g_rand_new_with_seed(time(0));
+	return g_rand_double_range(rander, -1.0, 1.0);
 }
 
 static circle_t
@@ -66,19 +72,21 @@ gen_circle(int i)
 {
 	int clr;
 	circle_t c;
-	c.x = 0.25 + sin(i*0.01) + next_random()*0.1;
-	c.y = -0.5 + cos(i*0.001) + next_random()*0.1;
-	c.r = 0.1 + next_random()*0.2;
-	c.dx = 0.01 * sin(next_random());
+	c.x = 0.2 + sin(i*0.01)*2.0 + next_random()*0.1;
+	c.y = -0.4 + cos(i*0.001)*0.5 + next_random()*0.1;
+	c.r = 0.005 + next_random()*0.01;
+	c.t = 0.0;
+	c.dx = 0.03 * sin(next_random());
 	c.dy = -0.01 * cos(next_random());
-	clr = rand()%2;
+	clr = rand()%4;
 	switch (clr) {
-	case 0: c.rgba = color(0x0fa080cf); break;
-	case 1: c.rgba = color(0x0fb9b5fc); break;
-	case 2: c.rgba = color(0x3f784f56); break;
+	case 0: c.fill = color(0x3fa080cf); break;
+	case 1: c.fill = color(0x3fb9b5fc); break;
+	case 2: c.fill = color(0x0f784f56); break;
 	default:
-	case 3: c.rgba = color(0x3fb1103c); break;
+	case 3: c.fill = color(0x0fb1103c); break;
 	};
+	c.stroke = color(0x3f705391);
 	return c;
 }
 
@@ -86,18 +94,19 @@ static void
 update_circle(circle_t* c, double dt)
 {
 	c->x += c->dx * dt;
-	c->y += c->dy * dt;
+	c->y -= c->dy * dt;
 }
 
 static void
 draw_circle(cairo_t* cr, gint width, gint height, circle_t* c)
 {
-	cairo_set_source_rgba(cr, c->rgba.r, c->rgba.g, c->rgba.b, c->rgba.a);
+	cairo_set_source_rgba(cr, c->fill.r, c->fill.g, c->fill.b, c->fill.a);
 	cairo_arc(cr, c->x*width, c->y*(double)height, c->r*(double)width, 0.0, 2 * M_PI);
-	cairo_fill(cr);
-	//cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 0.4);
-	//cairo_set_line_width(cr, 8.0);
-	//cairo_stroke(cr);
+	//cairo_stroke_preserve(cr);
+	cairo_fill_preserve(cr);
+	cairo_set_source_rgba(cr, c->stroke.r, c->stroke.g, c->stroke.b, c->stroke.a);
+	cairo_set_line_width(cr, 10.0);
+	cairo_stroke(cr);
 }
 
 circle_t circles[NUM_CIRCLES];
@@ -191,6 +200,9 @@ main (int argc, char *argv[])
 	gtk_main();
 
 	cairo_pattern_destroy(bgpattern);
+
+	if (rander)
+		g_rand_free(rander);
 
 	return 0;
 }
