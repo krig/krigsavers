@@ -5,19 +5,20 @@ blddir = 'build'
 VERSION = '0.0.1'
 VERSION_MAJOR_MINOR = ".".join(VERSION.split('.')[0:2])
 APPNAME = 'krigsavers'
+SAVERS = ['epochsaver']
 
 def build(bld):
     #print ("Entering into directory " + os.getcwd())
 
-    bld.install_files('${SHAREDDIR}/applications/screensavers', 'epochsaver.desktop')
-
-    epoch = bld.new_task_gen('cc', 'cprogram')
-    epoch.source = 'epochsaver.c gs-theme-window.c'
-    epoch.target = 'epochsaver'
-    epoch.includes = '.'
-    epoch.uselib = 'GTK+-2.0 CAIRO'
-    epoch.install_path = bld.env['SAVER']+'/gnome-screensaver'
-    epoch.chmod = 0755
+    for sav in SAVERS:
+        bld.install_files('${PREFIX}/share/applications/screensavers', sav+'.desktop')
+        saver = bld.new_task_gen('cc', 'cprogram')
+        saver.source = sav+'.c gs-theme-window.c'
+        saver.target = sav
+        saver.includes = '.'
+        saver.uselib = 'GTK+-2.0 CAIRO'
+        saver.install_path = os.path.join(bld.env['SAVER'], 'gnome-screensaver')
+        saver.chmod = 0755
 
 def configure(conf):
     conf.check_tool('gcc')
