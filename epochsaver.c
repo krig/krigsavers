@@ -96,7 +96,7 @@ main (int argc, char *argv[])
 	error = NULL;
 
 	gtk_init_with_args (&argc, &argv,
-			    "cairotest",
+			    "epochsaver",
 			    options, NULL, &error);
 
 	window = gs_theme_window_new();
