@@ -5,7 +5,7 @@ blddir = 'build'
 VERSION = '0.0.1'
 VERSION_MAJOR_MINOR = ".".join(VERSION.split('.')[0:2])
 APPNAME = 'krigsavers'
-SAVERS = ['epochsaver', 'circlesaver']
+SAVERS = ['epochsaver', 'circlesaver', 'swarmsaver']
 
 def build(bld):
     #print ("Entering into directory " + os.getcwd())
