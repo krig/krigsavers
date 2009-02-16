@@ -95,6 +95,16 @@ update_circle(circle_t* c, double dt)
 {
 	c->x += c->dx * dt;
 	c->y -= c->dy * dt;
+
+	// boundschecks
+	if (c->x - c.r > 1.0)
+		c->x = -c.r;
+	if (c->x < -c.r)
+		c->x = 1.0 + c.r;
+	if (c->y - c.r > 1.0)
+		c->y = -c.r;
+	if (c->y < -c.r)
+		c->y = 1.0 + c.r;
 }
 
 static void
