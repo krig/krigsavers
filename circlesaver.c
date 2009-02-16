@@ -27,7 +27,7 @@ static GOptionEntry options[] = {
        {NULL}
 };
 
-#define NUM_CIRCLES 40
+#define NUM_CIRCLES 200
 #define UPDATE_FREQ 10
 
 typedef struct rgba_
@@ -73,8 +73,8 @@ gen_circle(int i)
 	int clr;
 	circle_t c;
 	c.x = 0.2 + sin(i*0.01)*2.0 + next_random()*0.1;
-	c.y = -0.4 + cos(i*0.001)*0.5 + next_random()*0.1;
-	c.r = 0.005 + next_random()*0.01;
+	c.y = -0.2 + cos(i*0.001)*0.5 + next_random()*0.1;
+	c.r = 0.005 + next_random()*0.03;
 	c.t = 0.0;
 	c.dx = 0.03 * sin(next_random());
 	c.dy = -0.01 * cos(next_random());
@@ -97,14 +97,15 @@ update_circle(circle_t* c, double dt)
 	c->y -= c->dy * dt;
 
 	// boundschecks
-	if (c->x - c.r > 1.0)
-		c->x = -c.r;
-	if (c->x < -c.r)
-		c->x = 1.0 + c.r;
-	if (c->y - c.r > 1.0)
-		c->y = -c.r;
-	if (c->y < -c.r)
-		c->y = 1.0 + c.r;
+	double border = 0.1;
+	if (c->x - c->r > 1.0+border)
+		c->x = -border-c->r;
+	if (c->x < -border-c->r)
+		c->x = 1.0+border + c->r;
+	if (c->y - c->r > 1.0+border)
+		c->y = -border-c->r;
+	if (c->y < -border-c->r)
+		c->y = 1.0+border + c->r;
 }
 
 static void
