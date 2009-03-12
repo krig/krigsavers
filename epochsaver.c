@@ -7,6 +7,8 @@
 
 static gchar *geometry = NULL;
 static gboolean countdown = FALSE;
+static gboolean g_variant1 = FALSE;
+static gboolean g_colour_blue = FALSE;
 
 static GOptionEntry options[] = {
 	{"geometry",
@@ -22,6 +24,20 @@ static GOptionEntry options[] = {
 	 &countdown,
 	 "If set, the clock counts down to 1234567890", NULL},
 
+	{"variant1",
+	 0,
+	 0,
+	 G_OPTION_ARG_NONE,
+	 &g_variant1,
+	 "clock variant 1", NULL},
+
+	{"blue",
+	 0,
+	 0,
+	 G_OPTION_ARG_NONE,
+	 &g_colour_blue,
+	 "blue colour scheme", NULL},
+	
        {NULL}
 };
 
@@ -45,11 +61,17 @@ on_expose_event(GtkWidget      *widget,
 
 	now = time(0);
 	now_tm = localtime(&now);
-	strftime(snow, 256, "%s", now_tm);
 
 	if (countdown) {
+		strftime(snow, 256, "%s", now_tm);
 		invtim = 1234567890 - atoi(snow);
 		sprintf(snow, "%d", invtim);
+	}
+	else if (g_variant1) {
+		strftime(snow, 256, "%T", now_tm);
+	}
+	else {
+		strftime(snow, 256, "%s", now_tm);
 	}
 
 	strcpy(smax, snow);
@@ -62,10 +84,21 @@ on_expose_event(GtkWidget      *widget,
 	gdk_window_get_position(widget->window, &x, &y);
 	gdk_drawable_get_size(widget->window, &width, &height);
 
-	cairo_set_source_rgb (cr, 0.1, 0.1, 0.1);
+	double bg[3] = {0.0, 0.0, 0.0};
+	double fg[4] = {1.0, 0.4, 0.0, 1.0};
+	double fg_shadow[4] = {1.0, 0.4, 0.0, 0.2};
+
+	if (g_colour_blue) {
+		fg[0] = 0.0;
+		fg[2] = 1.0;
+		fg_shadow[0] = 0.0;
+		fg_shadow[2] = 1.0;
+	}
+
+	cairo_set_source_rgb (cr, bg[0], bg[1], bg[2]);
 	cairo_paint (cr);
 
-	cairo_set_source_rgb(cr, 1, 0.4, 0);
+	cairo_set_source_rgba(cr, fg[0], fg[1], fg[2], fg[3]);
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
 			       CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_size(cr, 80.0);
@@ -80,7 +113,7 @@ on_expose_event(GtkWidget      *widget,
 
 	cairo_show_text(cr, snow);
 
-	cairo_set_source_rgba(cr, 1, 0.4, 0, 0.2);
+	cairo_set_source_rgba(cr, fg_shadow[0], fg_shadow[1], fg_shadow[2], fg_shadow[3]);
 	cairo_move_to(cr, (width - extents.width)/2.0, (height - extents.height)/2.0);
 	cairo_matrix_init_scale(&mtx, 80.0, -80.0);
 	cairo_set_font_matrix(cr, &mtx);

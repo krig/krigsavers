@@ -20,8 +20,10 @@ def build(bld):
         saver.install_path = os.path.join(bld.env['SAVER'], 'gnome-screensaver')
         saver.chmod = 0755
 
-    # variation of epochsaver
+    # variations of epochsaver
     bld.install_files('${PREFIX}/share/applications/screensavers', 'epochcountdown.desktop')
+    bld.install_files('${PREFIX}/share/applications/screensavers', 'epochclock.desktop')
+    bld.install_files('${PREFIX}/share/applications/screensavers', 'clockblue.desktop')
 
 
 def configure(conf):
