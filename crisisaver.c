@@ -112,6 +112,11 @@ void set_source_rgba(cairo_t* cr, rgba_t* clr)
 	cairo_set_source_rgba(cr, clr->r, clr->g, clr->b, clr->a);
 }
 
+void set_source_rgba2(cairo_t* cr, rgba_t* clr, double a)
+{
+	cairo_set_source_rgba(cr, clr->r, clr->g, clr->b, a);
+}
+
 void draw_text(cairo_t* cr, const char* text, double x, double y, double size, rgba_t* clr)
 {
 	cairo_save(cr);
@@ -125,18 +130,20 @@ void draw_text(cairo_t* cr, const char* text, double x, double y, double size, r
 	cairo_restore(cr);
 }
 
-void draw_time(cairo_t* cr, time_t now, rgba_t* stroke, rgba_t* fill, double width, double height)
+void draw_time(cairo_t* cr, int secs, rgba_t* stroke, rgba_t* fill, double width, double height)
 {
-	double x = width - 200;
-	double y = 100;
-	double r = 80;
-	double stroke_w = 10.0;
+	double x = width/2;
+	double y = height/2;
+	double r = width/4;
+	double stroke_w = 120.0;
 	cairo_save(cr);
-	set_source_rgba(cr, fill);
-	cairo_arc(cr, x, y, r, 0.0, 2 * M_PI);
+	cairo_move_to(cr, x + r, y);
+	//set_source_rgba2(cr, stroke, 0.5);
+	cairo_arc(cr, x, y, r, 0.0, (2 * M_PI)*((double)secs/60.0));
+	cairo_move_to(cr, x - r, y);
 	//cairo_stroke_preserve(cr);
-	cairo_fill_preserve(cr);
-	set_source_rgba(cr, stroke);
+	//cairo_fill_preserve(cr);
+	set_source_rgba2(cr, stroke, 0.25);
 	cairo_set_line_width(cr, stroke_w);
 	cairo_stroke(cr);
 	cairo_restore(cr);
@@ -172,7 +179,7 @@ on_expose_event(GtkWidget      *widget,
 	strftime(cur_day, 256, "%A ", now_tm);
 	strcat(cur_day, number2string[now_tm->tm_mday]);
 	strftime(cur_date, 256, "%B %Y", now_tm);
-	strftime(cur_time, 256, "%H:%M:%S", now_tm);
+	strftime(cur_time, 256, "%H:%M", now_tm);
 
 	str2upper(cur_day);
 	str2upper(cur_date);
@@ -186,11 +193,11 @@ on_expose_event(GtkWidget      *widget,
 	set_source_rgb (cr, &g_theme->bg);
 	cairo_paint (cr);
 
+	draw_time(cr, now_tm->tm_sec, &g_theme->fg3, &g_theme->fg0, width, height);
+
 	draw_text(cr, cur_day, 100, height-220, 70, &g_theme->fg0);
 	draw_text(cr, cur_date, 100, height-163, 80, &g_theme->fg2);
 	draw_text(cr, cur_time, 100, height-123, 55, &g_theme->fg1);
-
-	//draw_time(cr, now, &g_theme->fg3, &g_theme->fg0, width, height);
 
 	cairo_destroy(cr);
 
