@@ -48,7 +48,48 @@ static ColorTheme g_themes[] = {
 		.fg1 = COLOR4i(255, 245, 178, 255),
 		.fg2 = COLOR4i(212, 192, 120, 255),
 		.fg3 = COLOR4i(163, 34, 32, 255),
+	},
+	{
+		.name = "sunshine",
+		.bg = COLOR4i(112, 120, 100, 255),
+		.fg0 = COLOR4i(193, 215, 78, 255),
+		.fg1 = COLOR4i(245, 255, 124, 255),
+		.fg2 = COLOR4i(223, 230, 180, 255),
+		.fg3 = COLOR4i(166, 184, 156, 255),
+	},
+	{
+		.name = "mexican",
+		.bg = COLOR4i(36, 19, 35, 255),
+		.fg0 = COLOR4i(43, 25, 49, 255),
+		.fg1 = COLOR4i(82, 36, 55, 255),
+		.fg2 = COLOR4i(191, 158, 165, 255),
+		.fg3 = COLOR4i(248, 201, 207, 255),
+	},
+	{
+		.name = "paragon",
+		.bg = COLOR4i(37, 35, 38, 255),
+		.fg0 = COLOR4i(242, 242, 242, 255),
+		.fg1 = COLOR4i(242, 224, 189, 255),
+		.fg2 = COLOR4i(242, 95, 41, 255),
+		.fg3 = COLOR4i(28, 25, 38, 255),
+	},
+	{
+		.name = "fauxberry",
+		.bg = COLOR4i(64, 60, 61, 255),
+		.fg0 = COLOR4i(166, 70, 78, 255),
+		.fg1 = COLOR4i(140, 130, 116, 255),
+		.fg2 = COLOR4i(242, 218, 189, 255),
+		.fg3 = COLOR4i(89, 45, 53, 255),
+	},
+	{
+		.name = "leaf",
+		.bg = COLOR4i(50, 56, 54, 255),
+		.fg0 = COLOR4i(186, 209, 181, 255),
+		.fg1 = COLOR4i(219, 232, 207, 255),
+		.fg2 = COLOR4i(240, 247, 232, 255),
+		.fg3 = COLOR4i(255, 254, 245, 255),
 	}
+
 
 };
 
@@ -73,6 +114,7 @@ void draw_text(cairo_t* cr, const char* text, double x, double y, double size, r
 	cairo_set_font_size(cr, size);
 	cairo_move_to(cr, x, y);
 	cairo_show_text(cr, text);
+	//cairo_close_path(cr);
 	cairo_restore(cr);
 }
 
@@ -114,7 +156,7 @@ on_expose_event(GtkWidget      *widget,
 	now_tm = localtime(&now);
 
 	strftime(cur_day, 256, "%A", now_tm);
-   	strftime(cur_date, 256, "%B %e, %Y", now_tm);
+	strftime(cur_date, 256, "%F", now_tm);
 	strftime(cur_time, 256, "%T", now_tm);
 
 	cr = gdk_cairo_create(widget->window);
@@ -125,9 +167,9 @@ on_expose_event(GtkWidget      *widget,
 	set_source_rgb (cr, &g_theme->bg);
 	cairo_paint (cr);
 
-	draw_text(cr, cur_day, 100, height-240, 40, &g_theme->fg0);
-	draw_text(cr, cur_date, 100, height-200, 40, &g_theme->fg2);
-	draw_text(cr, cur_time, 100, height-150, 60, &g_theme->fg1);
+	draw_text(cr, cur_day, 100, height-220, 80, &g_theme->fg0);
+	draw_text(cr, cur_date, 100, height-160, 80, &g_theme->fg2);
+	draw_text(cr, cur_time, 100, height-100, 80, &g_theme->fg1);
 
 	//draw_time(cr, now, &g_theme->fg3, &g_theme->fg0, width, height);
 

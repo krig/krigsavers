@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=Crisis(aver)
 Comment=Crisis!
-Exec=crisisaver
+Exec=crisisaver -t 4
 TryExec=crisisaver
 StartupNotify=false
 Terminal=false
