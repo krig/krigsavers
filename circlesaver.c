@@ -1,11 +1,4 @@
-#include <cairo.h>
-#include <gtk/gtk.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <string.h>
-#include <glib.h>
-#include "gs-theme-window.h"
+#include "util.h"
 
 static gchar *geometry = NULL;
 static gboolean countdown = FALSE;
@@ -29,43 +22,6 @@ static GOptionEntry options[] = {
 
 #define NUM_CIRCLES 200
 #define UPDATE_FREQ 10
-
-typedef struct rgba_
-{
-	double r, g, b, a;
-} rgba_t;
-
-typedef struct circle_
-{
-	double x;
-	double y;
-	double r;
-	double dx;
-	double dy;
-	rgba_t fill;
-	rgba_t stroke;
-	double t;
-} circle_t;
-
-static rgba_t
-color(unsigned int rgba)
-{
-	rgba_t clr;
-	clr.a = ((double)((rgba>>24)&0xff))/255.5;
-	clr.r = ((double)((rgba>>16)&0xff))/255.5;
-	clr.g = ((double)((rgba>> 8)&0xff))/255.5;
-	clr.b = ((double)((rgba    )&0xff))/255.5;
-	return clr;
-}
-
-GRand* rander = NULL;
-static double
-next_random()
-{
-	if (rander == NULL)
-		rander = g_rand_new_with_seed(time(0));
-	return g_rand_double_range(rander, -1.0, 1.0);
-}
 
 static circle_t
 gen_circle(int i)
@@ -211,9 +167,6 @@ main (int argc, char *argv[])
 	gtk_main();
 
 	cairo_pattern_destroy(bgpattern);
-
-	if (rander)
-		g_rand_free(rander);
 
 	return 0;
 }
