@@ -43,10 +43,10 @@ static ColorTheme g_themes[] = {
 	{
 		.name = "cinnamon",
 		.bg = COLOR4i(32, 30, 24, 255),
-		.fg0 = COLOR4i(246, 254, 255, 255),
-		.fg1 = COLOR4i(245, 183, 65, 255),
-		.fg2 = COLOR4i(68, 64, 57, 255),
-		.fg3 = COLOR4i(42, 39, 32, 255),
+		.fg1 = COLOR4i(42, 39, 32, 255),
+		.fg0 = COLOR4i(245, 183, 65, 255),
+		.fg3 = COLOR4i(68, 64, 57, 255),
+		.fg2 = COLOR4i(246, 254, 255, 255),
 	},
 	{
 		.name = "spice",
@@ -99,6 +99,7 @@ static ColorTheme g_themes[] = {
 
 
 };
+#define NUM_THEMES (sizeof(g_themes)/sizeof(g_themes[0]))
 
 static ColorTheme* g_theme = g_themes + 1;
 
@@ -130,23 +131,89 @@ void draw_text(cairo_t* cr, const char* text, double x, double y, double size, r
 	cairo_restore(cr);
 }
 
-void draw_time(cairo_t* cr, int secs, rgba_t* stroke, rgba_t* fill, double width, double height)
+typedef struct Segment_
 {
-	double x = width/2;
-	double y = height/2;
-	double r = width/4;
-	double stroke_w = 120.0;
+	double start, end;
+} segment_t;
+
+void random_shuffle(int* begin, int* end)
+{
+	int i, tmp, pick;
+	int len = end - begin;
+	for (i = len-1; i > 0; --i) {
+		pick = g_random_int_range(0, i);
+		tmp = begin[i];
+		begin[i] = begin[pick];
+		begin[pick] = tmp;
+	}
+}
+
+static segment_t g_segments_sec[60];
+static segment_t g_segments_min[60];
+static segment_t g_segments_hou[24];
+static int g_seeded = 0;
+
+void seed_segments(segment_t* list, int size)
+{
+	int idx[60];
+	int i;
+	double offset, len;
+	for (i = 0; i < size; ++i) {
+		idx[i] = i;
+	}
+	random_shuffle(idx, idx + size);
+
+	offset = 0.0;
+	len = (2.0*M_PI)/(double)size;
+	for (i = 0; i < size; ++i) {
+		list[idx[i]].start = offset + len*0.05;
+		list[idx[i]].end = offset + len*0.9;
+		offset = (i+1.0)*len;
+	}
+	g_seeded = 1;
+}
+
+void draw_segment(cairo_t* cr, rgba_t* stroke, rgba_t* fill, double x, double y, double r, double width, segment_t* segment, double alpha)
+{
+	//double x = width/2 + width/5;
+	//double y = height/2;
+	//double r = width/4;
+	//double stroke_w = 120;
 	cairo_save(cr);
-	cairo_move_to(cr, x + r, y);
+	cairo_move_to(cr, x + r * cos(segment->start), y + r * sin(segment->start));
 	//set_source_rgba2(cr, stroke, 0.5);
-	cairo_arc(cr, x, y, r, 0.0, (2 * M_PI)*((double)secs/60.0));
-	cairo_move_to(cr, x - r, y);
+	//cairo_move_to(cr, x - r, y);
+	cairo_arc(cr, x, y, r, segment->start, segment->end);
+
+	cairo_move_to(cr, x + r * cos(segment->end*60.0), y + r * sin(segment->end*60.0));
 	//cairo_stroke_preserve(cr);
 	//cairo_fill_preserve(cr);
-	set_source_rgba2(cr, stroke, 0.25);
-	cairo_set_line_width(cr, stroke_w);
+	set_source_rgba2(cr, stroke, alpha);
+	cairo_set_line_width(cr, width);
 	cairo_stroke(cr);
 	cairo_restore(cr);
+}
+
+void draw_time(cairo_t* cr, int hou, int mins, int secs, double width, double height)
+{
+	int i;
+	if (secs > 59)
+		secs = 59; // leap seconds..!
+	if (secs == 0 || !g_seeded) {
+		seed_segments(g_segments_min, 60);
+		seed_segments(g_segments_hou, 24);
+		//g_theme = g_themes + g_random_int_range(0, NUM_THEMES);
+	}
+	seed_segments(g_segments_sec, 60);
+	for (i = 0; i < hou; ++i) {
+		draw_segment(cr, &g_theme->fg3, 0, width/2 + width/5, height/2, width/4, 120, g_segments_hou + i, 0.5);
+	}
+	for (i = 0; i < mins; ++i) {
+		draw_segment(cr, &g_theme->fg3, 0, width/2 + width/5, height/2, width/4-120, 90, g_segments_min + i, 0.2);
+	}
+	for (i = 0; i < secs; ++i) {
+		draw_segment(cr, &g_theme->fg3, 0, width/2 + width/5, height/2, width/4-240, 60, g_segments_sec + i, 0.1);
+	}
 }
 
 void str2upper(char* str) {
@@ -193,11 +260,11 @@ on_expose_event(GtkWidget      *widget,
 	set_source_rgb (cr, &g_theme->bg);
 	cairo_paint (cr);
 
-	draw_time(cr, now_tm->tm_sec, &g_theme->fg3, &g_theme->fg0, width, height);
+	draw_time(cr, now_tm->tm_hour, now_tm->tm_min, now_tm->tm_sec, width, height);
 
-	draw_text(cr, cur_day, 100, height-220, 70, &g_theme->fg0);
-	draw_text(cr, cur_date, 100, height-163, 80, &g_theme->fg2);
-	draw_text(cr, cur_time, 100, height-123, 55, &g_theme->fg1);
+	draw_text(cr, cur_day, 100, height-220, 40, &g_theme->fg0);
+	draw_text(cr, cur_date, 100, height-163, 50, &g_theme->fg2);
+	draw_text(cr, cur_time, 100, height-123, 25, &g_theme->fg1);
 
 	cairo_destroy(cr);
 
@@ -225,7 +292,7 @@ main (int argc, char *argv[])
 			    "crisisaver",
 			    options, NULL, &error);
 
-	if (selectedtheme >= sizeof(g_themes)/sizeof(g_themes[0]))
+	if (selectedtheme >= NUM_THEMES)
 		selectedtheme = 0;
 	g_theme = g_themes + selectedtheme;
 

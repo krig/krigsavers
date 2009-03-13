@@ -51,14 +51,27 @@ free_rander(void)
 		g_rand_free(gs_rander);
 }
 
-static double
-next_random()
+static void
+init_random()
 {
 	if (gs_rander == NULL) {
 		gs_rander = g_rand_new_with_seed(time(0));
 		atexit(free_rander);
 	}
+}
+
+static double
+next_random()
+{
+	init_random();
 	return g_rand_double_range(gs_rander, -1.0, 1.0);
+}
+
+static int
+next_random_int_range(int begin, int end)
+{
+	init_random();
+	return g_rand_int_range(gs_rander, begin, end);
 }
 
 #endif/*UTIL_H__12234*/
