@@ -1,7 +1,14 @@
 #include "util.h"
+#include <ctype.h>
 
 static gchar *geometry = NULL;
 static int selectedtheme = 0;
+
+const char* number2string[] = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+			"nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+			"eighteen", "nineteen", "twenty", "twentyone", "twentytwo", "twentythree",
+			"twentyfour", "twentyfive", "twentysix", "twentyseven", "twentyeight", "twentynine",
+			"thirty", "thirtyone" };
 
 static GOptionEntry options[] = {
 	{"geometry",
@@ -135,6 +142,13 @@ void draw_time(cairo_t* cr, time_t now, rgba_t* stroke, rgba_t* fill, double wid
 	cairo_restore(cr);
 }
 
+void str2upper(char* str) {
+	while (*str) {
+		*str = toupper(*str);
+		str++;
+	}
+}
+
 static gboolean
 on_expose_event(GtkWidget      *widget,
 		GdkEventExpose *event,
@@ -155,9 +169,14 @@ on_expose_event(GtkWidget      *widget,
 	now = time(0);
 	now_tm = localtime(&now);
 
-	strftime(cur_day, 256, "%A", now_tm);
-	strftime(cur_date, 256, "%F", now_tm);
-	strftime(cur_time, 256, "%T", now_tm);
+	strftime(cur_day, 256, "%A ", now_tm);
+	strcat(cur_day, number2string[now_tm->tm_mday]);
+	strftime(cur_date, 256, "%B %Y", now_tm);
+	strftime(cur_time, 256, "%H:%M:%S", now_tm);
+
+	str2upper(cur_day);
+	str2upper(cur_date);
+	str2upper(cur_time);
 
 	cr = gdk_cairo_create(widget->window);
 
@@ -167,9 +186,9 @@ on_expose_event(GtkWidget      *widget,
 	set_source_rgb (cr, &g_theme->bg);
 	cairo_paint (cr);
 
-	draw_text(cr, cur_day, 100, height-220, 80, &g_theme->fg0);
-	draw_text(cr, cur_date, 100, height-160, 80, &g_theme->fg2);
-	draw_text(cr, cur_time, 100, height-100, 80, &g_theme->fg1);
+	draw_text(cr, cur_day, 100, height-220, 70, &g_theme->fg0);
+	draw_text(cr, cur_date, 100, height-163, 80, &g_theme->fg2);
+	draw_text(cr, cur_time, 100, height-123, 55, &g_theme->fg1);
 
 	//draw_time(cr, now, &g_theme->fg3, &g_theme->fg0, width, height);
 
