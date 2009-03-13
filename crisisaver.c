@@ -1,6 +1,7 @@
 #include "util.h"
 
 static gchar *geometry = NULL;
+static int selectedtheme = 0;
 
 static GOptionEntry options[] = {
 	{"geometry",
@@ -9,7 +10,13 @@ static GOptionEntry options[] = {
 	 G_OPTION_ARG_STRING,
 	 &geometry,
 	 "The initial size and position of window", "WIDTHxHEIGHT+X+Y"},
-	
+ 	{"theme",
+	 't',
+	 0,
+	 G_OPTION_ARG_INT,
+	 &selectedtheme,
+	 "Color theme", NULL},
+
        {NULL}
 };
 
@@ -33,10 +40,19 @@ static ColorTheme g_themes[] = {
 		.fg1 = COLOR4i(245, 183, 65, 255),
 		.fg2 = COLOR4i(68, 64, 57, 255),
 		.fg3 = COLOR4i(42, 39, 32, 255),
+	},
+	{
+		.name = "spice",
+		.bg = COLOR4i(54, 41, 35, 255),
+		.fg0 = COLOR4i(145, 130, 73, 255),
+		.fg1 = COLOR4i(255, 245, 178, 255),
+		.fg2 = COLOR4i(212, 192, 120, 255),
+		.fg3 = COLOR4i(163, 34, 32, 255),
 	}
+
 };
 
-static ColorTheme* g_theme = g_themes + 0;
+static ColorTheme* g_theme = g_themes + 1;
 
 void set_source_rgb(cairo_t* cr, rgba_t* clr)
 {
@@ -140,6 +156,10 @@ main (int argc, char *argv[])
 	gtk_init_with_args (&argc, &argv,
 			    "crisisaver",
 			    options, NULL, &error);
+
+	if (selectedtheme >= sizeof(g_themes)/sizeof(g_themes[0]))
+		selectedtheme = 0;
+	g_theme = g_themes + selectedtheme;
 
 	window = gs_theme_window_new();
 	darea = gtk_drawing_area_new();
