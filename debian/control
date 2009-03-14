@@ -1,0 +1,17 @@
+Source: krigsavers
+Section: gnome
+Priority: extra
+Maintainer: Kristoffer Grönlund <kristoffer.gronlund@purplescout.se>
+Build-Depends: debhelper (>= 5), gnome-screensaver (>= 2.24.0)
+Standards-Version: 3.8.0
+XS-Vcs-Git: git://github.com/krig/krigsavers.git
+XS-Vcs-Browser: http://github.com/krig/krigsavers/tree/master
+
+Package: krigsavers
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Collection of screensavers for GNOME
+ A simple collection of screensavers for GNOME, with the goal of
+ providing some more style to the GNU/Linux desktop. Most of the
+ screensavers are clocks in some form or another.
+

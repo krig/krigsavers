@@ -40,3 +40,7 @@ def configure(conf):
 def set_options(_):
     pass
 
+# don't include these dirs in the
+# ./waf dist archive
+import Scripting
+Scripting.excludes += ['.git', 'debian']

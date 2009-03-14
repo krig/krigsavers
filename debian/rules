@@ -1,0 +1,65 @@
+#!/usr/bin/make -f
+
+CFLAGS = -Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+
+export NOCOLOR=1
+WAF_HOME = debian/tmp-waf-home
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	HOME=$(WAF_HOME) ./waf configure --prefix=/usr
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp: configure-stamp
+	dh_testdir
+	HOME=$(WAF_HOME) ./waf -v
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	HOME=$(WAF_HOME) ./waf distclean
+	rm -rf debian/tmp-waf-home
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	HOME=$(WAF_HOME) ./waf install --destdir=$(CURDIR)/debian/krigsavers install
+	rm -f $(CURDIR)/po/*.po
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installchangelogs
+	dh_installmenu
+	dh_desktop
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
