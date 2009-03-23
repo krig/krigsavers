@@ -22,7 +22,7 @@ static GOptionEntry options[] = {
 	 0,
 	 G_OPTION_ARG_NONE,
 	 &countdown,
-	 "If set, the clock counts down to 1234567890", NULL},
+	 "If set, the clock counts down to 2000000000", NULL},
 
 	{"variant1",
 	 0,
@@ -64,7 +64,7 @@ on_expose_event(GtkWidget      *widget,
 
 	if (countdown) {
 		strftime(snow, 256, "%s", now_tm);
-		invtim = 1234567890 - atoi(snow);
+		invtim = 2000000000 - atoi(snow);
 		sprintf(snow, "%d", invtim);
 	}
 	else if (g_variant1) {
@@ -100,7 +100,7 @@ on_expose_event(GtkWidget      *widget,
 
 	cairo_set_source_rgba(cr, fg[0], fg[1], fg[2], fg[3]);
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-			       CAIRO_FONT_WEIGHT_BOLD);
+			       CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(cr, 80.0);
 
 
