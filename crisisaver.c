@@ -5,7 +5,7 @@ static gchar *geometry = NULL;
 static int selectedtheme = 0;
 
 const char* number2string[] = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
-			"nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+			"nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
 			"eighteen", "nineteen", "twenty", "twentyone", "twentytwo", "twentythree",
 			"twentyfour", "twentyfive", "twentysix", "twentyseven", "twentyeight", "twentynine",
 			"thirty", "thirtyone" };
